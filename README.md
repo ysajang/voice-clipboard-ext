@@ -14,7 +14,7 @@ Click any text field, speak, and your words appear instantly.
 Voice Clipboard uses the browser's built-in Web Speech API (`window.SpeechRecognition`). No audio or text ever leaves your machine through this extension.
 
 ## Permissions
-- **`<all_urls>` content script match**: Required so the floating mic button can appear on any page with a text field. Without this, the extension cannot function.
+- **`https://*/*` content script match**: Required so the floating mic button can appear on any secure page with a text field. The Web Speech API only works in secure (HTTPS) contexts, so HTTP pages are intentionally excluded.
 
 The extension does **not** request `storage`, `tabs`, `cookies`, `history`, `webRequest`, or any host permission beyond content script injection.
 
@@ -30,7 +30,7 @@ See [Privacy Policy](https://lordofwins.github.io/voice-clipboard-ext/privacy.ht
 ## Build for Chrome Web Store
 ```bash
 # Exclude dev files from the upload ZIP
-zip -r voice-clipboard-v6.7.0.zip . \
+zip -r voice-clipboard-v7.0.0.zip . \
   -x "*.git*" "docs/*" "*.md" "*.zip" ".gitignore" "node_modules/*" ".DS_Store"
 ```
 

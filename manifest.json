@@ -1,15 +1,19 @@
 {
     "manifest_version": 3,
     "name": "Voice Clipboard",
-    "version": "6.7.0",
+    "version": "7.0.0",
     "description": "Click any text field, speak, and your words appear instantly.",
     "content_scripts": [
         {
             "matches": [
-                "<all_urls>"
+                "https://*/*"
             ],
             "js": [
-                "content.js"
+                "src/config.js",
+                "src/dom-utils.js",
+                "src/ui.js",
+                "src/recognizer.js",
+                "src/main.js"
             ],
             "css": [
                 "content.css"
@@ -23,7 +27,7 @@
     "action": {
         "default_popup": "popup.html",
         "default_icon": {
-            "16": "icons/icon16.png",
+            "32": "icons/icon32.png",
             "48": "icons/icon48.png",
             "128": "icons/icon128.png"
         }
@@ -35,12 +39,12 @@
                 "permission.js"
             ],
             "matches": [
-                "<all_urls>"
+                "https://*/*"
             ]
         }
     ],
     "icons": {
-        "16": "icons/icon16.png",
+        "32": "icons/icon32.png",
         "48": "icons/icon48.png",
         "128": "icons/icon128.png"
     }
