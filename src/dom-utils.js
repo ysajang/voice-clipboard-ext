@@ -63,6 +63,26 @@
         return null;
     }
 
+    /* 마이크 버튼을 띄울 가치가 있는 필드인지 (작은 input 제외) */
+    const MIN_INPUT_W = 220;
+    const MIN_INPUT_H = 32;
+
+    function isWorthUI(el) {
+        if (!el) return false;
+        const tag = (el.tagName || '').toUpperCase();
+
+        // 멀티라인 입력은 항상 노출 (긴 텍스트 = 본래 목적)
+        if (tag === 'TEXTAREA') return true;
+        if (el.isContentEditable) return true;
+
+        const role = (el.getAttribute && el.getAttribute('role') || '').toLowerCase();
+        if (role === 'textbox' && el.getAttribute('aria-multiline') === 'true') return true;
+
+        // 단일라인 input/role 은 렌더링 크기로 판단
+        const r = el.getBoundingClientRect();
+        return r.width >= MIN_INPUT_W && r.height >= MIN_INPUT_H;
+    }
+
     /* shadow DOM 관통 activeElement */
     function deepActiveElement() {
         let ae = document.activeElement;
@@ -137,5 +157,5 @@
         el.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
-    VC.dom = { ours, isInput, resolve, directFind, deepActiveElement, escapeRegExp, applyDict, insertText };
+    VC.dom = { ours, isInput, isWorthUI, resolve, directFind, deepActiveElement, escapeRegExp, applyDict, insertText };
 })();

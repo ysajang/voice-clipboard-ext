@@ -77,6 +77,7 @@
     /* ── 입력 필드 감지: 이벤트 기반 ── */
     function setTarget(el) {
         if (!el) return;
+        if (!dom.isWorthUI(el)) return;
         userActive = true;
         tgt = el;
         ui.showAt(el);
@@ -86,6 +87,7 @@
         if (dom.ours(e.target)) return;
         const el = dom.directFind(e.target);
         if (el) {
+            if (!dom.isWorthUI(el)) return;
             userActive = true;
             tgt = el;
             setTimeout(() => ui.showAt(el), TIMING.SHOW_DELAY_MS);
@@ -134,10 +136,10 @@
             ae !== document.documentElement && !dom.ours(ae)) {
             if (dom.isInput(ae)) {
                 lastPollEl = ae; tgt = ae;
-                if (!ui.isShown()) ui.showAt(ae);
+                if (!ui.isShown() && dom.isWorthUI(ae)) ui.showAt(ae);
             } else {
                 const el = dom.resolve(ae);
-                if (el) { lastPollEl = el; tgt = el; if (!ui.isShown()) ui.showAt(el); }
+                if (el) { lastPollEl = el; tgt = el; if (!ui.isShown() && dom.isWorthUI(el)) ui.showAt(el); }
             }
         }
 
@@ -146,7 +148,7 @@
                 const el = document.querySelector(sel);
                 if (el && el === document.activeElement && el !== lastPollEl) {
                     lastPollEl = el; tgt = el;
-                    if (!ui.isShown()) ui.showAt(el);
+                    if (!ui.isShown() && dom.isWorthUI(el)) ui.showAt(el);
                     break;
                 }
             } catch (_) { }
