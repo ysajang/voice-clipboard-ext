@@ -43,6 +43,7 @@
 <h2>7. Permissions Justification</h2>
 <ul>
   <li><strong><code>&lt;all_urls&gt;</code> content script match</strong>: Required so users can dictate text into any website's input field (email clients, search bars, messaging apps, docs, forms, etc.). This is the core functionality of the extension.</li>
+  <li><strong><code>clipboardRead</code> / <code>clipboardWrite</code></strong>: Used only to insert recognized text into rich-text editors by pasting it at the cursor. The text that was on your clipboard is read into memory solely so it can be restored right after the paste. Clipboard contents are never stored, logged, or transmitted.</li>
 </ul>
 
 <h2>8. Children's Privacy</h2>

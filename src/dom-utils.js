@@ -106,25 +106,66 @@
         return r;
     }
 
-    /* 커서 위치에 텍스트 삽입 */
-    function insertText(el, text) {
-        if (!el || !text) return;
+    /* ── 텍스트 삽입 ──
+       input/textarea : execCommand('insertText') → native setter
+       contenteditable: 클립보드 붙여넣기 → (실패 시) Range 직접 삽입
+       음성 결과가 연달아 들어와도 순서가 섞이지 않도록 큐로 직렬화한다. */
+    const CLIP_RESTORE_MS = (VC.config && VC.config.TIMING && VC.config.TIMING.CLIP_RESTORE_MS) || 500;
 
-        if (el.isContentEditable) {
-            el.focus();
-            const sel = window.getSelection();
-            if (sel && sel.rangeCount) {
-                const range = sel.getRangeAt(0);
-                range.deleteContents();
-                range.insertNode(document.createTextNode(text));
-                range.collapse(false);
-                sel.removeAllRanges();
-                sel.addRange(range);
-            }
-            el.dispatchEvent(new Event('input', { bubbles: true }));
-            return;
+    let insertChain = Promise.resolve();
+    let savedClip = null;    // 복원 대기 중인 기존 클립보드 텍스트 (null = 아직 저장 안 함)
+    let restoreTimer = null;
+
+    /* 마지막 붙여넣기 후 잠시 뒤 사용자의 기존 클립보드 텍스트를 되돌린다 */
+    function scheduleClipRestore() {
+        clearTimeout(restoreTimer);
+        restoreTimer = setTimeout(() => {
+            const prev = savedClip;
+            savedClip = null;
+            if (prev) navigator.clipboard.writeText(prev).catch(() => { });
+        }, CLIP_RESTORE_MS);
+    }
+
+    /* 클립보드에 쓰고 커서 위치에 붙여넣기. 성공 여부 반환 */
+    async function pasteViaClipboard(el, text) {
+        const cb = navigator.clipboard;
+        if (!cb || !cb.writeText) return false;
+
+        clearTimeout(restoreTimer);
+        if (savedClip === null) {
+            // 텍스트가 아닌 내용(이미지 등)이거나 읽기 실패면 '' → 복원하지 않음
+            try { savedClip = (await cb.readText()) || ''; } catch (_) { savedClip = ''; }
         }
 
+        let ok = false;
+        try {
+            await cb.writeText(text);
+            el.focus();
+            ok = document.execCommand('paste');
+        } catch (_) {
+            ok = false;
+        }
+        scheduleClipRestore();
+        return ok;
+    }
+
+    /* contenteditable: Range 직접 삽입 (붙여넣기 실패 시 대체 경로) */
+    function insertIntoEditable(el, text) {
+        el.focus();
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount) {
+            const range = sel.getRangeAt(0);
+            range.deleteContents();
+            range.insertNode(document.createTextNode(text));
+            range.collapse(false);
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    /* input / textarea */
+    function insertIntoField(el, text) {
         el.focus();
 
         // execCommand 우선 시도 (deprecated 이나 React 등 호환성 최상). 실패 시 native setter
@@ -155,6 +196,24 @@
         el.value += text;
         el.dispatchEvent(new Event('input', { bubbles: true }));
         el.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    async function doInsert(el, text) {
+        if (el.isContentEditable) {
+            const ok = await pasteViaClipboard(el, text);
+            if (!ok) insertIntoEditable(el, text);
+            return;
+        }
+        insertIntoField(el, text);
+    }
+
+    /* 커서 위치에 텍스트 삽입 (호출 순서대로 처리, Promise 반환) */
+    function insertText(el, text) {
+        if (!el || !text) return Promise.resolve();
+        insertChain = insertChain
+            .then(() => doInsert(el, text))
+            .catch((e) => { console.warn('[Voice Clipboard] insert failed:', e); });
+        return insertChain;
     }
 
     VC.dom = { ours, isInput, isWorthUI, resolve, directFind, deepActiveElement, escapeRegExp, applyDict, insertText };

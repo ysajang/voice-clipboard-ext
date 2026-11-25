@@ -1,8 +1,12 @@
 {
     "manifest_version": 3,
     "name": "Voice Clipboard",
-    "version": "7.0.0",
+    "version": "7.1.0",
     "description": "Click any text field, speak, and your words appear instantly.",
+    "permissions": [
+        "clipboardRead",
+        "clipboardWrite"
+    ],
     "content_scripts": [
         {
             "matches": [

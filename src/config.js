@@ -4,14 +4,15 @@
 
     const VC = (window.__VC = window.__VC || {});
 
-    const VER = '7.0.0';
+    const VER = '7.1.0';
 
     const TIMING = {
         SILENCE_MS: 20000,  // 무음 자동 종료
         HIDE_MS: 4000,      // 플로팅 UI 자동 숨김
         LONGPRESS_MS: 1000, // 길게 눌러 언어 메뉴
         SHOW_DELAY_MS: 50,  // mousedown 후 위치 계산 지연
-        POLL_MS: 400        // 녹음 중에만 동작하는 보조 폴링
+        POLL_MS: 400,       // 녹음 중에만 동작하는 보조 폴링
+        CLIP_RESTORE_MS: 500 // 붙여넣기 후 기존 클립보드 복원 지연
     };
 
     const LANGS = [
