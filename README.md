@@ -6,7 +6,7 @@ Click any text field, speak, and your words appear instantly.
 - Voice-to-text input for any `<input>`, `<textarea>`, or contenteditable element
 - 7 languages supported: Korean, English, Japanese, Chinese, Spanish, French, German
 - Floating mic button + `Ctrl+Shift+V` shortcut
-- Auto-stop after 4 seconds of silence
+- Auto-stop after 20 seconds of silence
 - Long-press mic to switch language (radial menu)
 - Zero data collection, zero network requests, zero storage
 
